@@ -2,6 +2,8 @@ name: Tomato Analyzer Lite
 author: Wes Bonelli
 public: True
 clone: True
+from: Directory
+to: File
 image: shub://w-bonelli/tomato-analyzer-lite
 commands: python /opt/code/trait_extract_parallel.py -p $INPUT -ft $FILETYPE
 params:
