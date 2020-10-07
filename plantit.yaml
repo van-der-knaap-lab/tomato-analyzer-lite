@@ -1,7 +1,7 @@
 name: Tomato Analyzer Lite
 author: Wes Bonelli
 public: True
-clone: True
+clone: False
 from: Directory
 to: File
 image: shub://w-bonelli/plant-image-analysis
