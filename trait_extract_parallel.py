@@ -871,7 +871,7 @@ if __name__ == '__main__':
         wb = load_workbook(trait_file)
 
         #Get the current Active Sheet
-        sheet = wb.get_active_sheet()
+        sheet = wb.active
 
     else:
         # Keep presets
