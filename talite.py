@@ -90,7 +90,7 @@ def process(options: TAOptions) -> TAResult:
     # TODO exclude shapes which are square or rectangular within a certain error range
     # TODO compute and return area/curvature/solidity for each contour
     print(f"Finding contours")
-    contours, hierarchy = cv2.findContours(masked_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(dilated_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours_image = cv2.drawContours(color_image.copy(), contours, -1, (0, 255, 0), 2)
 
     contours_image = color_image.copy()
