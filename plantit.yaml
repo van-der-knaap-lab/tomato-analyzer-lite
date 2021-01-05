@@ -3,7 +3,7 @@ author: Wes Bonelli
 public: True
 clone: True
 image: docker://wbonelli/tomato-analyzer-lite
-commands: python3.8 talite.py "$INPUT"
+commands: python3.8 opt/tomato-analyzer-lite/talite.py "$INPUT"
 logo: tomatoes_logo.png
 input:
   path:
