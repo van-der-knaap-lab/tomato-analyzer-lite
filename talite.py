@@ -124,7 +124,7 @@ def process(options: TAOptions) -> List[TAResult]:
 
 @click.command()
 @click.argument('input_file')
-@click.option('--output_directory', required=False, type=str, default='')
+@click.option('-o', '--output_directory', required=False, type=str, default='')
 def cli(input_file, output_directory):
     start = time.time()
     options = TAOptions(input_file, output_directory)
