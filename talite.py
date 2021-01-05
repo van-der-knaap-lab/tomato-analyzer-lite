@@ -64,10 +64,26 @@ def process(options: TAOptions) -> TAResult:
     imageio.imwrite(f"{output_prefix}.mask.png", skimage.img_as_uint(masked_image))
 
     # erosion/dilation
-    kernel = np.ones((5, 5), np.uint8)
-    eroded_image = cv2.erode(masked_image.copy(), kernel, iterations=1)
-    dilated_image = cv2.dilate(eroded_image, kernel, iterations=1)
+    kernel = np.ones((7, 7), np.uint8)
+    eroded_image = cv2.erode(masked_image.copy(), kernel, iterations=2)
+    dilated_image = cv2.dilate(eroded_image, kernel, iterations=2)
     imageio.imwrite(f"{output_prefix}.opened.png", dilated_image)
+
+    # circle detection
+    print(f"Finding circles")
+    circle_detection_copy = dilated_image.copy()
+    detected_circles = cv2.HoughCircles(cv2.blur(circle_detection_copy, (5, 5)),
+                                        cv2.HOUGH_GRADIENT, 1, 100, param1=40,
+                                        param2=40, minRadius=50, maxRadius=350)
+
+    if detected_circles is not None:
+        detected_circles = np.uint16(np.around(detected_circles))
+        for pt in detected_circles[0, :]:
+            a, b, r = pt[0], pt[1], pt[2]
+            cv2.circle(circle_detection_copy, (a, b), r, (0, 255, 0), 2)
+            cv2.circle(circle_detection_copy, (a, b), 1, (0, 0, 255), 3)
+
+        cv2.imwrite(f"{output_prefix}.circles.png", circle_detection_copy)
 
     # contour detection
     print(f"Finding contours")
@@ -95,22 +111,6 @@ def process(options: TAOptions) -> TAResult:
     print(f"Finding edges")
     edges_image = cv2.Canny(color_image, 100, 200)
     cv2.imwrite(f"{output_prefix}.edges.png", edges_image)
-
-    # circle detection
-    # print(f"Finding circles")
-    # circle_detection_copy = color_image.copy()
-    # detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (5, 5)),
-    #                                     cv2.HOUGH_GRADIENT, 1, 100, param1=40,
-    #                                     param2=40, minRadius=50, maxRadius=350)
-
-    # if detected_circles is not None:
-    #     detected_circles = np.uint16(np.around(detected_circles))
-    #     for pt in detected_circles[0, :]:
-    #         a, b, r = pt[0], pt[1], pt[2]
-    #         cv2.circle(circle_detection_copy, (a, b), r, (0, 255, 0), 2)
-    #         cv2.circle(circle_detection_copy, (a, b), 1, (0, 0, 255), 3)
-
-    #     cv2.imwrite(f"{output_prefix}.circles.png", circle_detection_copy)
 
     # extract traits
     print(f"Extracting traits")
