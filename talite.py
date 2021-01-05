@@ -72,8 +72,8 @@ def process(options: TAOptions) -> TAResult:
     # circle detection
     print(f"Finding circles")
     detected_circles = cv2.HoughCircles(cv2.blur(eroded_image.copy(), (5, 5)),
-                                        cv2.HOUGH_GRADIENT, 1, 100, param1=40,
-                                        param2=40, minRadius=50, maxRadius=350)
+                                        cv2.HOUGH_GRADIENT, 1, 40, param1=40,
+                                        param2=30, minRadius=20, maxRadius=500)
 
     circle_detection_copy = color_image.copy()
     if detected_circles is not None:
