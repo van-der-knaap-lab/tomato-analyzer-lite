@@ -97,7 +97,7 @@ def process(options: TAOptions) -> TAResult:
     circle_detection_copy = color_image.copy()
     detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (3, 3)),
                                         cv2.HOUGH_GRADIENT, 1, 50, param1=40,
-                                        param2=60, minRadius=50, maxRadius=300)
+                                        param2=60, minRadius=50, maxRadius=150)
 
     if detected_circles is not None:
         detected_circles = np.uint16(np.around(detected_circles))
