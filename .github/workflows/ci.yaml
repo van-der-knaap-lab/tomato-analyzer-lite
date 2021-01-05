@@ -1,0 +1,49 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        python-version: [ 3.8 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 coverage coveralls
+          pip install -r requirements.txt
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Lint
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Test
+        env:
+          # TEST_DIRECTORY: ${{ secrets.TEST_DIRECTORY }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+        run: |
+          docker run -t -e COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN -e COVERALLS_PARALLEL=$COVERALLS_PARALLEL -v $PWD:/opt/dev -w /opt/dev wbonelli/tomato-analyzer-lite coverage run --source="/opt/dev/" -m pytest -s && coveralls
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: test_output
+          path: |
+            tests/output/*.csv
+            tests/output/*.yml
+            tests/output/*.jpg
+            tests/output/*.png
