@@ -1,5 +1,29 @@
 # Tomato Analyzer Lite
 
-A workflow to analyze images of tomatoes and similar fruit, extracting basic geometric trait measurements.
+Extract geometric trait measurements from images of tomatoes and other fruit.
 
-Clustering, segmentation, and trait extraction code by [Suxing Liu](https://github.com/lsx1980/plant-image-analysis).
+Clustering and segmentation by [Suxing Liu](https://github.com/lsx1980/plant-image-analysis). Trait extraction adapted by [Wes Bonelli](mailto:wbonelli@uga.edu).
+
+## Requirements
+
+Either [Docker](https://www.docker.com/) or [Singularity](https://sylabs.io/singularity/) is required to run this project in a Unix environment.
+
+## Installation
+
+Clone the project with `git clone https://github.com/van-der-knaap-lab/tomato-analyzer-lite.git`.
+
+## Usage
+
+To analyze files in a directory relative to the project root:
+
+#### Docker
+
+```bash
+docker run -v "$(pwd)":/opt/tomato-analyzer-lite -w /opt/tomato-analyzer-lite wbonelli/tomato-analyzer-lite python3.8 /opt/tomato-analyzer-lite/trait_extract_parallel.py -i input/directory -o output/directory -ft jpg
+```
+
+#### Singularity
+
+```bash
+singularity exec docker://wbonelli/tomato-analyzer-lite python3.8 trait_extract_parallel.py -i /input/directory -o output/directory -ft jpg
+```

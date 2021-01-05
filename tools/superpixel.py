@@ -1,22 +1,11 @@
 # USAGE
 # python3 superpixel.py --image 01.jpg
 
-# import the necessary packages
-from skimage.segmentation import slic
-from skimage.segmentation import mark_boundaries
-from skimage.util import img_as_float
-from skimage import io
-
-from skimage import data, segmentation, measure, color, img_as_float
-
-import matplotlib.pyplot as plt
 import argparse
 
+import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-
-
-import imutils
+from skimage import io
 
 '''
 def mean_image(image,label):
@@ -81,10 +70,9 @@ cv2.imwrite('seg.png', output)
 
 
 from skimage.segmentation import slic
-from scipy.spatial import Delaunay
 from skimage.segmentation import mark_boundaries
 from matplotlib.lines import Line2D
-from skimage import measure, color, img_as_float
+from skimage import img_as_float
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required = True, help = "Path to the image")

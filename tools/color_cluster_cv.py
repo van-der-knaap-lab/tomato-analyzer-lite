@@ -25,7 +25,6 @@ import cv2
 import os
 import argparse
 import glob
-import utils
 import matplotlib.pyplot as plt
 
 from sklearn.cluster import KMeans
@@ -38,6 +37,8 @@ import imutils
 from scipy.interpolate import interp1d
 
 from mpl_toolkits.mplot3d import Axes3D
+
+from tools import utils
 
 '''
 from colormath.color_objects import sRGBColor, LabColor

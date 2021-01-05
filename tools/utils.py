@@ -13,13 +13,11 @@ import utils
 #!/usr/bin/python
 
 
+import cv2
+import matplotlib.colors as colors
 # import the necessary packages
 import numpy as np
-import cv2
-from scipy import ndimage
-import pylab as P
 from matplotlib import pyplot as plt
-import matplotlib.colors as colors
 from matplotlib.ticker import FormatStrFormatter
 
 
@@ -176,7 +174,7 @@ def plot_labeled_histogram(pixels,bins_num):
     ax.xaxis.set_major_formatter(FormatStrFormatter('%0.1f'))
     
     
-    color_lable = clt.cluster_centers_
+    color_lable = plt.cluster_centers_
 
     # Setting each cluster's value
     for bin_size, cbin, patch, color in zip(counts, bins, patches, color_lable):

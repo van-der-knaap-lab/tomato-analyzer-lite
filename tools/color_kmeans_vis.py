@@ -1,10 +1,10 @@
-'''
+"""
 Name: color_segmentation.py
 
 Version: 1.0
 
-Summary:  Extract plant traits (leaf area, width, height, ) by paralell processing 
-    
+Summary:  Extract plant traits (leaf area, width, height, ) by paralell processing
+
 Author: suxing liu
 
 Author-email: suxingliu@gmail.com
@@ -14,23 +14,19 @@ Created: 2018-09-29
 USAGE:
 
 python3 color_kmeans_vis.py -p /home/suxingliu/plant-image-analysis/sample_test/ -i 01.jpg -m 01_seg.jpg -c 5
-
-
-'''
+"""
 
 #!/usr/bin/python
 
-# import the necessary packages
-from sklearn.cluster import KMeans
-from sklearn.cluster import MiniBatchKMeans
-import matplotlib.pyplot as plt
 import argparse
-import utils
-import cv2
-import numpy as np
-import matplotlib.image as mpimg
-import pylab as P
 import os
+
+import cv2
+# import the necessary packages
+from sklearn.cluster import MiniBatchKMeans
+
+from tools import utils
+
 
 def mkdir(path):
     # remove space at the beginning

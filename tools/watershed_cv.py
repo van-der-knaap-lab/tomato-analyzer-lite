@@ -19,21 +19,21 @@ argument:
 """
 
 
+import argparse
+import glob
+import multiprocessing
+import os
+from contextlib import closing
+from multiprocessing import Pool
+
+import cv2
+import imutils
+import numpy as np
+from scipy import ndimage
 # import the necessary packages
 from skimage.feature import peak_local_max
 from skimage.morphology import watershed
-from scipy import ndimage
-import numpy as np
-import argparse
-import imutils
-import cv2
- 
-import glob
-import os,fnmatch
 
-import multiprocessing
-from multiprocessing import Pool
-from contextlib import closing
 
 def mkdir(path):
     """Create result folder"""

@@ -22,32 +22,18 @@ python3 color_seg.py -p /home/suxingliu/plant-image-analysis/test/ -ft JPG
 
 '''
 
+import argparse
+import glob
 # import the necessary packages
 import os
-import glob
-import argparse
+import warnings
+
+import cv2
+import numpy as np
 from sklearn.cluster import KMeans
 
-from skimage.feature import peak_local_max
-from skimage.morphology import watershed, medial_axis
-from skimage import img_as_float, img_as_ubyte, img_as_bool, img_as_int
-from skimage import measure
-
-from scipy.spatial import distance as dist
-from scipy import optimize
-from scipy import ndimage
-
-import numpy as np
-import argparse
-import cv2
-
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-
-import warnings
 warnings.filterwarnings("ignore")
 
-import concurrent.futures
 import multiprocessing
 from multiprocessing import Pool
 from contextlib import closing
