@@ -70,7 +70,7 @@ def process(options: TAOptions) -> TAResult:
     imageio.imwrite(f"{output_prefix}.opened.png", dilated_image)
 
     # contour detection
-    print(f"Finding contours (method 1)")
+    print(f"Finding contours")
     contours, hierarchy = cv2.findContours(masked_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours_image = cv2.drawContours(color_image.copy(), contours, -1, (0, 255, 0), 2)
 
@@ -85,25 +85,7 @@ def process(options: TAOptions) -> TAResult:
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
 
     print(f"Found {len(contours)} contours")
-    cv2.imwrite(f"{output_prefix}.contours1.png", contours_image)
-
-    # contour detection 2
-    print(f"Finding contours (method 2)")
-    blurred_image = cv2.GaussianBlur(masked_image.copy(), (7, 7), 0)
-    edged_image = cv2.Canny(blurred_image, 120, 255, 1)
-    contours = cv2.findContours(edged_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours = imutils.grab_contours(contours)
-    min_area = 100
-    max_area = 1000
-    contours_image = color_image.copy()
-    for contour in contours:
-        (x, y, w, h) = cv2.boundingRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
-        aspect_ratio = w / float(h)
-        area = cv2.contourArea(contour)
-        if max_area > area > min_area and (0.9 <= aspect_ratio <= 1.1):
-            cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
-
-    cv2.imwrite(f"{output_prefix}.contours2.png", contours_image)
+    cv2.imwrite(f"{output_prefix}.contours.png", contours_image)
 
     # edge detection
     print(f"Finding edges")
@@ -111,11 +93,11 @@ def process(options: TAOptions) -> TAResult:
     cv2.imwrite(f"{output_prefix}.edges.png", edges_image)
 
     # circle detection
-    print(f"Finding circles (method 3)")
+    print(f"Finding circles")
     circle_detection_copy = color_image.copy()
     detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (3, 3)),
                                         cv2.HOUGH_GRADIENT, 1, 50, param1=40,
-                                        param2=60, minRadius=20, maxRadius=100)
+                                        param2=60, minRadius=50, maxRadius=300)
 
     if detected_circles is not None:
         detected_circles = np.uint16(np.around(detected_circles))
@@ -124,7 +106,7 @@ def process(options: TAOptions) -> TAResult:
             cv2.circle(circle_detection_copy, (a, b), r, (0, 255, 0), 2)
             cv2.circle(circle_detection_copy, (a, b), 1, (0, 0, 255), 3)
 
-        cv2.imwrite(f"{output_prefix}.circles3.png", circle_detection_copy)
+        cv2.imwrite(f"{output_prefix}.circles.png", circle_detection_copy)
 
     # extract traits
     print(f"Extracting traits")
