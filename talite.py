@@ -29,7 +29,7 @@ def list_images(path: str, filetypes: List[str]):
 def write_results(options: TAOptions, results: List[TAResult]):
     # YAML
     with open(join(options.output_directory, f"{options.input_stem}.results.yml"), 'w') as file:
-        yaml.dump(results, file, default_flow_style=False)
+        yaml.dump({'features': results}, file, default_flow_style=False)
 
     # CSV
     with open(join(options.output_directory, f"{options.input_stem}.results.csv"), 'w') as file:
@@ -109,7 +109,7 @@ def process(options: TAOptions) -> List[TAResult]:
                 solidity=round(area / rect_area, 4),
                 max_height=h,
                 max_width=w)
-            # results.append(traits(color_image, output_prefix))
+            results.append(result)
 
     print(f"Kept {len(filtered_counters)} of {len(contours)} total contours")
     cv2.imwrite(f"{output_prefix}.contours.png", contours_image)
