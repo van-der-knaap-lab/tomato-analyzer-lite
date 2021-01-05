@@ -96,10 +96,10 @@ def process(options: TAOptions) -> List[TAResult]:
     i = 0
     for contour in contours:
         i += 1
-        (x, y, w, h) = cv2.boundingRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
+        (x, y, w, h) = cv2.minAreaRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
         area = cv2.contourArea(contour)
         rect_area = w * h
-        if max_area > area > min_area and abs(area - rect_area) > 0.3:
+        if max_area > area > min_area and 0.1 <= abs(area - rect_area) <= 0.4:
             filtered_counters.append(contour)
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
             cv2.putText(contours_image, str(i), (x + 30, y + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
