@@ -65,13 +65,13 @@ def process(options: TAOptions) -> TAResult:
 
     # erosion/dilation
     kernel = np.ones((7, 7), np.uint8)
-    eroded_image = cv2.erode(masked_image.copy(), kernel, iterations=2)
-    dilated_image = cv2.dilate(eroded_image, kernel, iterations=2)
+    dilated_image = cv2.dilate(masked_image.copy(), kernel, iterations=2)
+    eroded_image = cv2.erode(dilated_image, kernel, iterations=2)
     imageio.imwrite(f"{output_prefix}.opened.png", dilated_image)
 
     # circle detection
     print(f"Finding circles")
-    circle_detection_copy = dilated_image.copy()
+    circle_detection_copy = eroded_image.copy()
     detected_circles = cv2.HoughCircles(cv2.blur(circle_detection_copy, (5, 5)),
                                         cv2.HOUGH_GRADIENT, 1, 100, param1=40,
                                         param2=40, minRadius=50, maxRadius=350)
