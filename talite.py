@@ -84,6 +84,7 @@ def process(options: TAOptions) -> TAResult:
         area = cv2.contourArea(contour)
         if max_area > area > min_area: # and (0.9 <= aspect_ratio <= 1.1):
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
+            print(f"Contour area: {cv2.contourArea(contour)}")
             filtered_counters.append(contour)
 
     print(f"Kept {len(filtered_counters)} of {len(contours)} total contours")
