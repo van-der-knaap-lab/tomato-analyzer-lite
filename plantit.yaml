@@ -2,10 +2,8 @@ name: Tomato Analyzer Lite
 author: Wes Bonelli
 public: True
 clone: True
-from: Directory
+from: File
 to: Directory
 image: shub://w-bonelli/plant-image-analysis
 commands: python3 trait_extract_parallel.py -p "$INPUT" -ft "$FILETYPE"
 logo: tomatoes_logo.png
-params:
- - filetype
