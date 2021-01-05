@@ -1,5 +1,3 @@
-*.jpeg
-*.jpg
 tests/output
 .idea/
 __pycache__/
