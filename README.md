@@ -19,7 +19,7 @@ To analyze files in a directory relative to the project root:
 #### Docker
 
 ```bash
-docker run -v "$(pwd)":/opt/tomato-analyzer-lite -w /opt/tomato-analyzer-lite wbonelli/tomato-analyzer-lite python3.8 /opt/tomato-analyzer-lite/talite.py -i inputfile -o output/directory
+docker run -v "$(pwd)":/opt/tomato-analyzer-lite -w /opt/tomato-analyzer-lite wbonelli/tomato-analyzer-lite python3.8 /opt/tomato-analyzer-lite/talite.py inputfile -o output/directory
 ```
 
 #### Singularity
