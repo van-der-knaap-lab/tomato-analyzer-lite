@@ -102,11 +102,11 @@ def process(options: TAOptions) -> List[TAResult]:
         if max_area > area > min_area and abs(area - rect_area) > 0.3:
             filtered_counters.append(contour)
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
-            cv2.putText(contours_image, str(i), (x + 10, y + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+            cv2.putText(contours_image, str(i), (x + 20, y + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             result = TAResult(
                 id=str(i),
                 area=area,
-                solidity=round(area / rect_area, 4),
+                solidity=min(round(area / rect_area, 4), 1),
                 max_height=h,
                 max_width=w)
             results.append(result)
@@ -118,10 +118,6 @@ def process(options: TAOptions) -> List[TAResult]:
     print(f"Finding edges")
     edges_image = cv2.Canny(color_image, 100, 200)
     cv2.imwrite(f"{output_prefix}.edges.png", edges_image)
-
-    # extract traits
-    # print(f"Extracting traits")
-    # result = {**result, **traits(color_image, output_prefix)}
 
     return results
 
