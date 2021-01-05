@@ -55,16 +55,22 @@ def process(options: TAOptions) -> List[TAResult]:
     if len(color_image) == 0:
         raise ValueError(f"Image is empty: {options.input_name}")
 
+    # kernel = np.ones((7, 7), np.uint8)
+    # dilated_image = cv2.dilate(blurred_image, kernel, iterations=1)
+    # eroded_image = cv2.erode(dilated_image, kernel, iterations=1)
+    # imageio.imwrite(f"{output_prefix}.dilated.png", dilated_image)
+    # imageio.imwrite(f"{output_prefix}.eroded.png", eroded_image)
+
     # binary threshold
     masked_image = thresholding.binary_threshold(gray_image.astype(np.uint8))
     imageio.imwrite(f"{output_prefix}.mask.png", skimage.img_as_uint(masked_image))
 
     # closing (dilation/erosion)
     kernel = np.ones((7, 7), np.uint8)
-    dilated_image = cv2.dilate(masked_image.copy(), kernel, iterations=1)
-    closed_image = cv2.erode(dilated_image, kernel, iterations=1)
+    dilated_image = cv2.dilate(masked_image, kernel, iterations=1)
+    eroded_image = cv2.erode(dilated_image, kernel, iterations=1)
     imageio.imwrite(f"{output_prefix}.dilated.png", dilated_image)
-    imageio.imwrite(f"{output_prefix}.closed.png", closed_image)
+    imageio.imwrite(f"{output_prefix}.eroded.png", eroded_image)
 
     # circle detection
     # print(f"Finding circles")
@@ -86,9 +92,8 @@ def process(options: TAOptions) -> List[TAResult]:
     # TODO exclude shapes which are square or rectangular within a certain error range
     # TODO compute and return area/curvature/solidity for each contour
     print(f"Finding contours")
-    contours, hierarchy = cv2.findContours(dilated_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours_image = cv2.drawContours(color_image.copy(), contours, -1, (0, 255, 0), 2)
-
+    closed_image = cv2.morphologyEx(dilated_image.copy(), cv2.MORPH_CLOSE, kernel)
+    contours, hierarchy = cv2.findContours(closed_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours_image = color_image.copy()
     min_area = 10000
     max_area = 200000
@@ -96,13 +101,27 @@ def process(options: TAOptions) -> List[TAResult]:
     i = 0
     for contour in contours:
         i += 1
-        (x, y, w, h) = cv2.boundingRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
+        cnt = cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True)
+        bounding_rect = cv2.boundingRect(cnt)
+        (x, y, w, h) = bounding_rect
+        min_rect = cv2.minAreaRect(cnt)
         area = cv2.contourArea(contour)
         rect_area = w * h
         if max_area > area > min_area and abs(area - rect_area) > 0.3:
             filtered_counters.append(contour)
+
+            # draw and label contours
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
             cv2.putText(contours_image, str(i), (x + 30, y + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
+            # draw min bounding box
+            # box = np.int0(cv2.boxPoints(min_rect))
+            # cv2.drawContours(contours_image, [box], 0, (0, 0, 255), 2)
+
+            # draw min bounding box
+            # box = np.int0(cv2.boxPoints(bounding_rect))
+            # cv2.drawContours(contours_image, [bounding_rect], 0, (0, 0, 255), 2)
+
             result = TAResult(
                 id=str(i),
                 area=area,
