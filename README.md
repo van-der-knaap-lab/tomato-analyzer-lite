@@ -19,11 +19,11 @@ To analyze files in a directory relative to the project root:
 #### Docker
 
 ```bash
-docker run -v "$(pwd)":/opt/tomato-analyzer-lite -w /opt/tomato-analyzer-lite wbonelli/tomato-analyzer-lite python3.8 /opt/tomato-analyzer-lite/trait_extract_parallel.py -i input/directory -o output/directory -ft jpg
+docker run -v "$(pwd)":/opt/tomato-analyzer-lite -w /opt/tomato-analyzer-lite wbonelli/tomato-analyzer-lite python3.8 /opt/tomato-analyzer-lite/talite.py -i inputfile -o output/directory
 ```
 
 #### Singularity
 
 ```bash
-singularity exec docker://wbonelli/tomato-analyzer-lite python3.8 trait_extract_parallel.py -i /input/directory -o output/directory -ft jpg
+singularity exec docker://wbonelli/tomato-analyzer-lite python3.8 talite.py -i inputfile -o output/directory
 ```

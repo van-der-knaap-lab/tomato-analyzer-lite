@@ -10,13 +10,13 @@ def otsu_threshold(image: np.ndarray) -> np.ndarray:
 
 def binary_threshold(image: np.ndarray):
     if len(np.unique(image)) <= 2:
-        print('Binary input detected, skipping thresholding')
+        print('Binary input detected, skipping threshold')
         idx1 = np.where(image == np.unique(image)[0])
         idx2 = np.where(image == np.unique(image)[1])
         image[idx1] = False
         image[idx2] = True
     else:
-        print('Greyscale input detected, applying binary threshold')
+        print('Applying binary threshold')
         image = otsu_threshold(image)
 
     w, h = np.shape(image)
