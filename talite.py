@@ -26,13 +26,13 @@ def list_images(path: str, filetypes: List[str]):
     return files
 
 
-def write_results(path: str, results: List[TAResult]):
+def write_results(options: TAOptions, results: List[TAResult]):
     # YAML
-    with open(join(path, "results.yml"), 'w') as file:
+    with open(join(options.output_directory, f"{options.input_stem}.results.yml"), 'w') as file:
         yaml.dump(results, file, default_flow_style=False)
 
     # CSV
-    with open(join(path, "results.csv"), 'w') as file:
+    with open(join(options.output_directory, f"{options.input_stem}.results.csv"), 'w') as file:
         writer = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         if len(results) != 0:
             writer.writerow(list(results[0].keys()))
@@ -135,7 +135,7 @@ def cli(input_file, output_directory):
     results = process(options)
 
     print(f"Writing results to file")
-    write_results(options.output_directory, results)
+    write_results(options, results)
 
     duration = ceil((time.time() - start))
     print(f"Finished in {duration} seconds.")
