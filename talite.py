@@ -65,7 +65,7 @@ def process(options: TAOptions) -> TAResult:
 
     # closing (dilation/erosion)
     kernel = np.ones((7, 7), np.uint8)
-    dilated_image = cv2.dilate(masked_image.copy(), kernel, iterations=1j)
+    dilated_image = cv2.dilate(masked_image.copy(), kernel, iterations=1)
     closed_image = cv2.erode(dilated_image, kernel, iterations=1)
     imageio.imwrite(f"{output_prefix}.dilated.png", dilated_image)
     imageio.imwrite(f"{output_prefix}.closed.png", closed_image)
