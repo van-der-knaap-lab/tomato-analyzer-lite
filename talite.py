@@ -77,14 +77,16 @@ def process(options: TAOptions) -> TAResult:
     contours_image = color_image.copy()
     min_area = 10000
     max_area = 200000
+    filtered_counters = []
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
         aspect_ratio = w / float(h)
         area = cv2.contourArea(contour)
         if max_area > area > min_area: # and (0.9 <= aspect_ratio <= 1.1):
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
+            filtered_counters.append(contour)
 
-    print(f"Found {len(contours)} contours")
+    print(f"Kept {len(filtered_counters)} of {len(contours)} total contours")
     cv2.imwrite(f"{output_prefix}.contours.png", contours_image)
 
     # edge detection
@@ -95,9 +97,9 @@ def process(options: TAOptions) -> TAResult:
     # circle detection
     print(f"Finding circles")
     circle_detection_copy = color_image.copy()
-    detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (3, 3)),
+    detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (5, 5)),
                                         cv2.HOUGH_GRADIENT, 1, 50, param1=40,
-                                        param2=60, minRadius=50, maxRadius=150)
+                                        param2=100, minRadius=50, maxRadius=350)
 
     if detected_circles is not None:
         detected_circles = np.uint16(np.around(detected_circles))
