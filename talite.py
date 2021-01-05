@@ -1,26 +1,20 @@
 import csv
-import multiprocessing
 import time
-from contextlib import closing
 from glob import glob
 from math import ceil
-from os.path import join, getsize
-from pathlib import Path
+from os.path import join
 from typing import List
 
 import click
 import cv2
 import imageio
-import imutils
+import numpy as np
 import skimage
 import yaml
-import numpy as np
-from skimage import img_as_ubyte
 
 import thresholding
 from options import TAOptions
 from results import TAResult
-from traits import traits, compute_medial_axis
 
 MB_FACTOR = float(1 << 20)
 
@@ -32,20 +26,22 @@ def list_images(path: str, filetypes: List[str]):
     return files
 
 
-def write_result(path: str, result: TAResult):
+def write_results(path: str, results: List[TAResult]):
     # YAML
     with open(join(path, "results.yml"), 'w') as file:
-        yaml.dump(result, file, default_flow_style=False)
+        yaml.dump(results, file, default_flow_style=False)
 
     # CSV
     with open(join(path, "results.csv"), 'w') as file:
         writer = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(list(result.keys()))
-        writer.writerow(list(result.values()))
+        if len(results) != 0:
+            writer.writerow(list(results[0].keys()))
+        for result in results:
+            writer.writerow(list(result.values()))
 
 
-def process(options: TAOptions) -> TAResult:
-    result = TAResult(name=options.input_stem)
+def process(options: TAOptions) -> List[TAResult]:
+    results = []
     output_prefix = join(options.output_directory, options.input_stem)
     print(f"Extracting traits from '{options.input_name}'")
 
@@ -97,13 +93,23 @@ def process(options: TAOptions) -> TAResult:
     min_area = 10000
     max_area = 200000
     filtered_counters = []
+    i = 0
     for contour in contours:
+        i += 1
         (x, y, w, h) = cv2.boundingRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
         area = cv2.contourArea(contour)
         rect_area = w * h
         if max_area > area > min_area and abs(area - rect_area) > 0.3:
             filtered_counters.append(contour)
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
+            cv2.putText(contours_image, str(i), (x + 10, y + 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+            result = TAResult(
+                id=str(i),
+                area=area,
+                solidity=round(area / rect_area, 4),
+                max_height=h,
+                max_width=w)
+            # results.append(traits(color_image, output_prefix))
 
     print(f"Kept {len(filtered_counters)} of {len(contours)} total contours")
     cv2.imwrite(f"{output_prefix}.contours.png", contours_image)
@@ -114,10 +120,10 @@ def process(options: TAOptions) -> TAResult:
     cv2.imwrite(f"{output_prefix}.edges.png", edges_image)
 
     # extract traits
-    print(f"Extracting traits")
-    result = {**result, **traits(color_image, output_prefix)}
+    # print(f"Extracting traits")
+    # result = {**result, **traits(color_image, output_prefix)}
 
-    return result
+    return results
 
 
 @click.command()
@@ -126,10 +132,10 @@ def process(options: TAOptions) -> TAResult:
 def cli(input_file, output_directory):
     start = time.time()
     options = TAOptions(input_file, output_directory)
-    result = process(options)
+    results = process(options)
 
     print(f"Writing results to file")
-    write_result(options.output_directory, result)
+    write_results(options.output_directory, results)
 
     duration = ceil((time.time() - start))
     print(f"Finished in {duration} seconds.")
