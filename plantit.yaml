@@ -2,8 +2,25 @@ name: Tomato Analyzer Lite
 author: Wes Bonelli
 public: True
 clone: True
-from: File
-to: Directory
-image: shub://w-bonelli/plant-image-analysis
-commands: python3 trait_extract_parallel.py -p "$INPUT" -ft "$FILETYPE"
+image: docker://wbonelli/tomato-analyzer-lite
+commands: python3.8 talite.py "$INPUT"
 logo: tomatoes_logo.png
+input:
+  path:
+  kind: files
+  filetypes:
+    - jpg
+    - png
+output:
+  path:
+  include:
+    patterns:
+      - yml
+      - csv
+      - png
+      - jpg
+resources:
+  time: "03:00:00"
+  mem: "10GB"
+  tasks: 1
+  cores: 1
