@@ -3,7 +3,7 @@ import cv2
 
 
 def otsu_threshold(image: np.ndarray) -> np.ndarray:
-    image = cv2.createCLAHE(clipLimit=3).apply(image)
+    # image = cv2.createCLAHE(clipLimit=2).apply(image)
     _, image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return image
 
