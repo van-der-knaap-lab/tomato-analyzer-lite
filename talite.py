@@ -102,7 +102,7 @@ def process(options: TAOptions) -> List[TAResult]:
         if max_area > area > min_area and abs(area - rect_area) > 0.3:
             filtered_counters.append(contour)
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
-            cv2.putText(contours_image, str(i), (x + 20, y + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(contours_image, str(i), (x + 30, y + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             result = TAResult(
                 id=str(i),
                 area=area,
