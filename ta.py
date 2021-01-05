@@ -64,10 +64,12 @@ def process(options: TAOptions) -> TAResult:
     imageio.imwrite(f"{output_prefix}.mask.png", skimage.img_as_uint(masked_image))
 
     # contour detection
+    print(f"Finding contours (method 1)")
     contours, hierarchy = cv2.findContours(masked_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours_image = cv2.drawContours(color_image.copy(), contours, -1, (0, 255, 0), 2)
 
     # circle detection 0
+    print(f"Finding circles (method 0)")
     detected_circles_copy = cv2.cvtColor(color_image.copy(), cv2.COLOR_BGR2GRAY)
     detected_circles = cv2.HoughCircles(cv2.medianBlur(masked_image.copy(), 5),
                                          cv2.HOUGH_GRADIENT, 1, 20, param1=50,
@@ -96,9 +98,10 @@ def process(options: TAOptions) -> TAResult:
     cv2.imwrite(f"{output_prefix}.contours1.png", contours_image)
 
     # contour detection 2
+    print(f"Finding contours (method 2)")
     blurred_image = cv2.GaussianBlur(masked_image.copy(), (7, 7), 0)
     edged_image = cv2.Canny(blurred_image, 120, 255, 1)
-    contours, _ = cv2.findContours(edged_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = cv2.findContours(edged_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     min_area = 100
     max_area = 1000
@@ -113,6 +116,7 @@ def process(options: TAOptions) -> TAResult:
     cv2.imwrite(f"{output_prefix}.contours2.png", contours_image)
 
     # circle detection 1
+    print(f"Finding circles (method 1)")
     circle_detection_copy = cv2.cvtColor(color_image.copy(), cv2.COLOR_BGR2GRAY)
     detected_circles = cv2.HoughCircles(circle_detection_copy,
                                         cv2.HOUGH_GRADIENT, 1, 40, param1=50,
@@ -128,10 +132,12 @@ def process(options: TAOptions) -> TAResult:
         cv2.imwrite(f"{output_prefix}.circles1.png", circle_detection_copy)
 
     # edge detection
+    print(f"Finding edges")
     edges_image = cv2.Canny(color_image, 100, 200)
     cv2.imwrite(f"{output_prefix}.edges.png", edges_image)
 
     # circle detection 2
+    print(f"Finding circles (method 2)")
     detected_circles_copy = color_image.copy()
     detected_circles = cv2.HoughCircles(cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY),
                                         cv2.HOUGH_GRADIENT, 1.3, 30)
@@ -146,6 +152,7 @@ def process(options: TAOptions) -> TAResult:
         cv2.imwrite(f"{output_prefix}.circles2.png", detected_circles_copy)
 
     # circle detection 3
+    print(f"Finding circles (method 3)")
     circle_detection_copy = color_image.copy()
     detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (3, 3)),
                                         cv2.HOUGH_GRADIENT, 1, 50, param1=40,
@@ -161,6 +168,7 @@ def process(options: TAOptions) -> TAResult:
         cv2.imwrite(f"{output_prefix}.circles3.png", circle_detection_copy)
 
     # extract traits
+    print(f"Extracting traits")
     result = {**result, **traits(color_image, output_prefix)}
 
     return result
