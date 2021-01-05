@@ -63,26 +63,16 @@ def process(options: TAOptions) -> TAResult:
     masked_image = thresholding.binary_threshold(gray_image.astype(np.uint8))
     imageio.imwrite(f"{output_prefix}.mask.png", skimage.img_as_uint(masked_image))
 
+    # erosion/dilation
+    kernel = np.ones((5, 5), np.uint8)
+    eroded_image = cv2.erode(masked_image.copy(), kernel, iterations=1)
+    dilated_image = cv2.dilate(eroded_image, kernel, iterations=1)
+    imageio.imwrite(f"{output_prefix}.opened.png", dilated_image)
+
     # contour detection
     print(f"Finding contours (method 1)")
     contours, hierarchy = cv2.findContours(masked_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours_image = cv2.drawContours(color_image.copy(), contours, -1, (0, 255, 0), 2)
-
-    # circle detection 0
-    print(f"Finding circles (method 0)")
-    detected_circles_copy = cv2.cvtColor(color_image.copy(), cv2.COLOR_BGR2GRAY)
-    detected_circles = cv2.HoughCircles(cv2.medianBlur(masked_image.copy(), 5),
-                                         cv2.HOUGH_GRADIENT, 1, 20, param1=50,
-                                         param2=30, minRadius=0, maxRadius=0)
-
-    if detected_circles is not None:
-        detected_circles = np.uint16(np.around(detected_circles))
-        for pt in detected_circles[0, :]:
-            a, b, r = pt[0], pt[1], pt[2]
-            cv2.circle(detected_circles_copy, (a, b), r, (0, 255, 0), 2)
-            cv2.circle(detected_circles_copy, (a, b), 1, (0, 0, 255), 3)
-
-        cv2.imwrite(f"{output_prefix}.circles0.png", detected_circles_copy)
 
     contours_image = color_image.copy()
     min_area = 10000
@@ -115,48 +105,17 @@ def process(options: TAOptions) -> TAResult:
 
     cv2.imwrite(f"{output_prefix}.contours2.png", contours_image)
 
-    # circle detection 1
-    print(f"Finding circles (method 1)")
-    circle_detection_copy = cv2.cvtColor(color_image.copy(), cv2.COLOR_BGR2GRAY)
-    detected_circles = cv2.HoughCircles(circle_detection_copy,
-                                        cv2.HOUGH_GRADIENT, 1, 40, param1=50,
-                                        param2=100, minRadius=50, maxRadius=500)
-
-    if detected_circles is not None:
-        detected_circles = np.uint16(np.around(detected_circles))
-        for pt in detected_circles[0, :]:
-            a, b, r = pt[0], pt[1], pt[2]
-            cv2.circle(circle_detection_copy, (a, b), r, (0, 255, 0), 2)
-            cv2.circle(circle_detection_copy, (a, b), 1, (0, 0, 255), 3)
-
-        cv2.imwrite(f"{output_prefix}.circles1.png", circle_detection_copy)
-
     # edge detection
     print(f"Finding edges")
     edges_image = cv2.Canny(color_image, 100, 200)
     cv2.imwrite(f"{output_prefix}.edges.png", edges_image)
 
-    # circle detection 2
-    print(f"Finding circles (method 2)")
-    detected_circles_copy = color_image.copy()
-    detected_circles = cv2.HoughCircles(cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY),
-                                        cv2.HOUGH_GRADIENT, 1.3, 30)
-
-    if detected_circles is not None:
-        detected_circles = np.uint16(np.around(detected_circles))
-        for pt in detected_circles[0, :]:
-            a, b, r = pt[0], pt[1], pt[2]
-            cv2.circle(detected_circles_copy, (a, b), r, (0, 255, 0), 2)
-            cv2.circle(detected_circles_copy, (a, b), 1, (0, 0, 255), 3)
-
-        cv2.imwrite(f"{output_prefix}.circles2.png", detected_circles_copy)
-
-    # circle detection 3
+    # circle detection
     print(f"Finding circles (method 3)")
     circle_detection_copy = color_image.copy()
     detected_circles = cv2.HoughCircles(cv2.blur(masked_image.copy(), (3, 3)),
                                         cv2.HOUGH_GRADIENT, 1, 50, param1=40,
-                                        param2=40, minRadius=20, maxRadius=500)
+                                        param2=60, minRadius=20, maxRadius=100)
 
     if detected_circles is not None:
         detected_circles = np.uint16(np.around(detected_circles))
