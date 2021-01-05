@@ -101,7 +101,8 @@ def process(options: TAOptions) -> TAResult:
         (x, y, w, h) = cv2.boundingRect(cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True))
         area = cv2.contourArea(contour)
         rect = cv2.boundingRect(contour)
-        if max_area > area > min_area:
+        rect_area = rect.width * rect.height
+        if max_area > area > min_area and abs(area - rect_area) > 0.3:
             filtered_counters.append(contour)
             print(f"Contour area: {area}")
             print(f"Contour rect: {rect}")
