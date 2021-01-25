@@ -25,5 +25,5 @@ docker run -v "$(pwd)":/opt/tomato-analyzer-lite -w /opt/tomato-analyzer-lite wb
 #### Singularity
 
 ```bash
-singularity exec docker://wbonelli/tomato-analyzer-lite python3.8 talite.py -i inputfile -o output/directory
+singularity exec docker://wbonelli/tomato-analyzer-lite python3.8 talite.py inputfile -o output/directory
 ```
