@@ -22,5 +22,5 @@ output:
 resources:
   time: "00:10:00"
   mem: "2GB"
-  tasks: 1
+  processes: 1
   cores: 1
