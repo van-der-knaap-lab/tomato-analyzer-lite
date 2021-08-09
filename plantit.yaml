@@ -19,8 +19,8 @@ output:
       - csv
       - png
       - jpg
-resources:
-  time: "00:10:00"
-  mem: "2GB"
+jobqueue:
+  walltime: "00:10:00"
+  memory: "2GB"
   processes: 1
   cores: 1
