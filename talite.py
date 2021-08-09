@@ -11,6 +11,7 @@ import imageio
 import numpy as np
 import skimage
 import yaml
+from plantcv import plantcv as pcv
 
 import thresholding
 from options import TAOptions
@@ -93,14 +94,13 @@ def process(options: TAOptions) -> List[TAResult]:
     # TODO compute and return area/curvature/solidity for each contour
     print(f"Finding contours")
     closed_image = cv2.morphologyEx(dilated_image.copy(), cv2.MORPH_CLOSE, kernel)
-    contours, hierarchy = cv2.findContours(closed_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # contours, hierarchy = cv2.findContours(closed_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours_image, contours, hierarchy = cv2.findContours(closed_image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  # opencv 3 compat
     contours_image = color_image.copy()
     min_area = 10000
     max_area = 200000
-    filtered_counters = []
-    i = 0
-    for contour in contours:
-        i += 1
+    filtered_contours = []
+    for i, contour in enumerate(contours):
         cnt = cv2.approxPolyDP(contour, 0.035 * cv2.arcLength(contour, True), True)
         bounding_rect = cv2.boundingRect(cnt)
         (x, y, w, h) = bounding_rect
@@ -108,29 +108,43 @@ def process(options: TAOptions) -> List[TAResult]:
         area = cv2.contourArea(contour)
         rect_area = w * h
         if max_area > area > min_area and abs(area - rect_area) > 0.3:
-            filtered_counters.append(contour)
+            filtered_contours.append({
+                'contour': contour,
+                'x': x,
+                'y': y,
+                'w': w,
+                'h': h
+            })
 
             # draw and label contours
             cv2.drawContours(contours_image, [contour], 0, (0, 255, 0), 3)
             cv2.putText(contours_image, str(i), (x + 30, y + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
             # draw min bounding box
-            # box = np.int0(cv2.boxPoints(min_rect))
-            # cv2.drawContours(contours_image, [box], 0, (0, 0, 255), 2)
+            box = np.int0(cv2.boxPoints(min_rect))
+            cv2.drawContours(contours_image, [box], 0, (0, 0, 255), 2)
 
-            # draw min bounding box
-            # box = np.int0(cv2.boxPoints(bounding_rect))
-            # cv2.drawContours(contours_image, [bounding_rect], 0, (0, 0, 255), 2)
-
-            result = TAResult(
+            results.append(TAResult(
                 id=str(i),
                 area=area,
                 solidity=min(round(area / rect_area, 4), 1),
                 max_height=h,
-                max_width=w)
-            results.append(result)
+                max_width=w))
 
-    print(f"Kept {len(filtered_counters)} of {len(contours)} total contours")
+            # find objects (PlantCV)
+            id_objects, obj_hierarchy = pcv.find_objects(img=closed_image, mask=closed_image)
+            roi1, roi_hierarchy = pcv.roi.rectangle(img=closed_image, x=x, y=y, h=h, w=w)
+            roi_objects, hierarchy3, kept_mask, obj_area = pcv.roi_objects(img=closed_image, roi_contour=roi1,
+                                                                           roi_hierarchy=roi_hierarchy,
+                                                                           object_contour=id_objects,
+                                                                           obj_hierarchy=obj_hierarchy,
+                                                                           roi_type='partial')
+            obj, mask = pcv.object_composition(img=closed_image, contours=roi_objects, hierarchy=hierarchy3)
+            analysis_image = pcv.analyze_object(img=closed_image, obj=obj, mask=mask, label="default")
+            pcv.outputs.save_results(filename=f"{output_prefix}.analysis.{i}.csv", outformat='csv')
+            cv2.imwrite(f"{output_prefix}.analysis.{i}.png", skimage.img_as_uint(analysis_image))
+
+    print(f"Kept {len(filtered_contours)} of {len(contours)} total contours")
     cv2.imwrite(f"{output_prefix}.contours.png", contours_image)
 
     # edge detection
